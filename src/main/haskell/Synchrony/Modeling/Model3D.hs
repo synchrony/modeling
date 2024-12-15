@@ -85,21 +85,24 @@ data Angle3D = Angle3D Angle Angle Angle deriving Show
 
 type Color = DC.AlphaColour Double
 
-data Length = Absolute Double
-            | DividedBy Length Length
-            | Max Length Length
-            | Measurement Double Method
-            | Min Length Length
-            | Minus Length Length
-            | Modulo Length Length
-            | Plus Length Length
-            | SquareRoot Length
-            | Times Length Length
-            deriving Show
+type LaserReference = String -- To compose two laser lengths, they must share the same laser reference.
+
+data Length
+  = Absolute Double
+  | DividedBy Length Length
+  | Max Length Length
+  | Measurement Double Method
+  | Min Length Length
+  | Minus Length Length
+  | Modulo Length Length
+  | Plus Length Length
+  | SquareRoot Length
+  | Times Length Length
+  deriving Show
 
 data Method
   = Ruler -- A ruler with 1 millimeter increments. Measurements may be much less accurate due to "eyeballing".
-  | Laser -- A laser level in combination with a tape measure. To compose two laser lengths, they must share the same laser reference.
+  | Laser LaserReference -- A laser level in combination with a tape measure.
   | Method String -- Another method (with a descriptive string)
   | Micrometer -- A US micrometer with an accuracy of >= 0.01 inches (0.254 millimeters)
   | MillimeterCalipers -- Calipers with an accuracy of >= 1 millimeter
@@ -181,8 +184,8 @@ forward l = translate zero l zero
 guess :: Double -> Length
 guess d = Measurement d Unspecified
 
-laser :: Double -> Length
-laser d = Measurement d Laser
+laser :: LaserReference -> Double -> Length
+laser ref d = Measurement d $ Laser ref
 
 left :: Length -> Model -> Model
 left l = translate (neg l) zero zero
